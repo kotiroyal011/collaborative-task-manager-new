@@ -6,6 +6,7 @@ import { useEffect } from "react";
 
 import { taskSchema, Task } from "@/lib/validators/task";
 import { useTaskStore } from "@/lib/store/taskStore";
+import { useTasks } from "@/lib/hooks/useTasks";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +29,8 @@ import {
 export default function EditTaskModal() {
   const editingTask = useTaskStore((state) => state.editingTask);
   const setEditingTask = useTaskStore((state) => state.setEditingTask);
-  const updateTask = useTaskStore((state) => state.updateTask);
+  const updateLocalTask = useTaskStore((state) => state.updateTask);
+  const { updateTask } = useTasks();
 
   const form = useForm<Task>({
     resolver: zodResolver(taskSchema),
@@ -45,7 +47,8 @@ export default function EditTaskModal() {
   if (!editingTask) return null;
 
   const onSubmit = (data: Task) => {
-    updateTask(data);
+    updateLocalTask(data); // optimistic update
+    updateTask.mutate(data);
     setEditingTask(null);
   };
 

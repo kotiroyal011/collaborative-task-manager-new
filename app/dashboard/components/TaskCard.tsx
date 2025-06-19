@@ -2,6 +2,7 @@
 
 import { Task } from "@/lib/validators/task";
 import { useTaskStore } from "@/lib/store/taskStore";
+import { useTasks } from "@/lib/hooks/useTasks";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,12 +17,14 @@ import {
 import { useState } from "react";
 
 export default function TaskCard({ task }: { task: Task }) {
-  const { setEditingTask, deleteTask } = useTaskStore();
+  const { setEditingTask, deleteTask: deleteFromStore } = useTaskStore();
+  const { deleteTask } = useTasks();
   const [open, setOpen] = useState(false);
 
   const handleDelete = () => {
     if (task.id) {
-      deleteTask(task.id); // Zustand delete
+      deleteFromStore(task.id); // optimistic update
+      deleteTask.mutate(task.id);
       setOpen(false);
     }
   };
